@@ -8,7 +8,7 @@ module Events
   # @return [Boolean] If the event has a handler registered
   def has_event_handler?(event)
     @events ||= {}
-    !@events["on_#{event}".to_sym].nil?
+    !@events[event.to_sym].nil?
   end
   
   module ClassMethods
