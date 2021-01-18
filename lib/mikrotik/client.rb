@@ -69,6 +69,7 @@ module Mikrotik::Client
     execute command(:login)
       .with(name: @options[:username], password: @options[:password])
       .on_done { |reply|
+
         if(reply && reply.length == 1 && reply.first["=ret"])
           continue_with_old_login(reply.first["=ret"]) 
         else
@@ -76,6 +77,7 @@ module Mikrotik::Client
           @logged_in = true
           on_login_success(self)
         end
+
     }.on_trap {|trap| 
 
         Mikrotik.debug [:client, :on_login_failure]
@@ -101,7 +103,6 @@ module Mikrotik::Client
         Mikrotik.debug [:client, :on_login_failure]
         if has_event_handler? :on_login_failure then
           on_login_failure(trap)
-          return
         else
           raise Mikrotik::Errors::UnhandledTrap, 'Login failed'
         end
