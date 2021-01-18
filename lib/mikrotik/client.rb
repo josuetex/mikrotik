@@ -17,6 +17,8 @@ module Mikrotik::Client
   # becomes empty
   has_event :pending_complete
 
+    has_event :connection_failure
+
   # @return [Hash] Options used for the connection
   # @see Client#connect
   attr_reader :options

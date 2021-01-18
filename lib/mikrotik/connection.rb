@@ -37,7 +37,17 @@ module Mikrotik::Connection
   
   # @private
   def unbind
-    raise Mikrotik::Errors::ConnectionDropped unless @closing
+    unless @closing
+      if reason 
+        if has_event_handler?(:connection_failure)
+          on_connection_failure(reason.new)
+        else
+          raise reason
+        end
+      else
+        raise Mikrotik::Errors::ConnectionDropped 
+      end
+    end
   end
 
   private
