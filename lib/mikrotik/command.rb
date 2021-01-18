@@ -33,6 +33,7 @@ class Mikrotik::Command
     @command = "/#{@command}" unless @command.start_with?('/')
     @options = {}
     @replies = []
+    @custom_params = []
   end
   
   # Adds property names and values to the command
@@ -43,7 +44,12 @@ class Mikrotik::Command
     end
     self
   end
-  
+
+  def with_params(custom_params = [])
+    @custom_params = custom_params
+    self
+  end
+
   # Adds querying conditions to the command
   # @param [Hash] conditions
   def where(conditions = {})
@@ -68,7 +74,12 @@ class Mikrotik::Command
   # Encodes the command for transmission
   # @return [String] Command encoded as an API sentence in binary string format
   def encoded    
-    @command.to_mikrotik_word + @options.collect { |key, value|
+    cmd =  @command.to_mikrotik_word 
+
+    cmd += @custom_params.map {|param| param.to_mikrotik_word}.join
+
+    cmd += @options.collect { |key, value|
+
       case value.class.name
       when 'Array'        
         [key, value.collect { |item| "#{item}" }.join(',')].join '='        
