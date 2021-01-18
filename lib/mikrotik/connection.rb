@@ -67,7 +67,7 @@ module Mikrotik::Connection
       Mikrotik.debug [:command, :on_trap]
       # If there's an error handler, fire it...
       if command.has_event_handler?(:on_trap) then
-        command.on_trap(reply.param(:message))
+        command.on_trap(reply.result(:message))
       else
         # ...if not, raise an error
         raise Mikrotik::Errors::UnhandledTrap, reply.result(:message) || "Unknown error"
