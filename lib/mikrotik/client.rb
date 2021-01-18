@@ -70,13 +70,13 @@ module Mikrotik::Client
       .with(name: @options[:username], password: @options[:password])
       .on_done { |reply|
 
+        if(reply && reply.length == 1 && reply.first["=ret"])
+          continue_with_old_login(reply.first["=ret"]) && return
+        end
+
         Mikrotik.debug [:client, :on_login_success]
         @logged_in = true
         on_login_success(self)
-      #challenge = Mikrotik::Utilities.hex_to_bin(reply.result :ret) 
-      #response = "00" + Digest::MD5.hexdigest(0.chr + @options[:password] + challenge)
-
-
     }.on_trap {|trap| 
 
         Mikrotik.debug [:client, :on_login_failure]
@@ -86,7 +86,27 @@ module Mikrotik::Client
           raise Mikrotik::Errors::UnhandledTrap, 'Login failed'
         end
     }
+  end
+  
 
+  def continue_with_old_login(ret)
+      challenge = Mikrotik::Utilities.hex_to_bin(ret)
+
+      response = "00" + Digest::MD5.hexdigest(0.chr + @options[:password] + challenge)
+      execute command(:login).with(:name => @options[:username], :response => response).on_done { |replies|
+        Mikrotik.debug [:client, :on_login_success]
+        @logged_in = true
+        on_login_success(self)
+      }.on_trap {|trap| 
+
+        Mikrotik.debug [:client, :on_login_failure]
+        if has_event_handler? :on_login_failure then
+          on_login_failure(trap)
+          return
+        else
+          raise Mikrotik::Errors::UnhandledTrap, 'Login failed'
+        end
+      }
   end
 
   # Sends a command to the device
