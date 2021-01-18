@@ -66,28 +66,27 @@ module Mikrotik::Client
   # to +execute+ commands before sending any register an event handler
   # on +on_login_success+ and send commands from there
   def login
-    execute command(:login).on_reply { |reply|
+    execute command(:login)
+      .with(name: @options[:username], password: @options[:password])
+      .on_done { |reply|
 
-      challenge = Mikrotik::Utilities.hex_to_bin(reply.result :ret) 
-      response = "00" + Digest::MD5.hexdigest(0.chr + @options[:password] + challenge)
-
-      execute command(:login).with(
-        :name => @options[:username],
-        :response => response
-      ).on_done { |replies|
         Mikrotik.debug [:client, :on_login_success]
         @logged_in = true
         on_login_success(self)
-      }.on_trap { |trap|
+      #challenge = Mikrotik::Utilities.hex_to_bin(reply.result :ret) 
+      #response = "00" + Digest::MD5.hexdigest(0.chr + @options[:password] + challenge)
+
+
+    }.on_trap {|trap| 
+
         Mikrotik.debug [:client, :on_login_failure]
-        if has_event_handler? :on_login_failure then
+        if has_event_handler? :login_failure then
           on_login_failure(self)
         else
           raise Mikrotik::Errors::UnhandledTrap, 'Login failed'
         end
-      }
-
     }
+
   end
 
   # Sends a command to the device
