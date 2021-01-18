@@ -36,7 +36,7 @@ module Mikrotik::Connection
   end
   
   # @private
-  def unbind
+  def unbind(reason = nil)
     unless @closing
       if reason 
         if has_event_handler?(:on_connection_failure)
