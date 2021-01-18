@@ -69,14 +69,13 @@ module Mikrotik::Client
     execute command(:login)
       .with(name: @options[:username], password: @options[:password])
       .on_done { |reply|
-
         if(reply && reply.length == 1 && reply.first["=ret"])
-          continue_with_old_login(reply.first["=ret"]) && return
+          continue_with_old_login(reply.first["=ret"]) 
+        else
+          Mikrotik.debug [:client, :on_login_success]
+          @logged_in = true
+          on_login_success(self)
         end
-
-        Mikrotik.debug [:client, :on_login_success]
-        @logged_in = true
-        on_login_success(self)
     }.on_trap {|trap| 
 
         Mikrotik.debug [:client, :on_login_failure]
