@@ -80,7 +80,7 @@ module Mikrotik::Client
     }.on_trap {|trap| 
 
         Mikrotik.debug [:client, :on_login_failure]
-        if has_event_handler? :login_failure then
+        if has_event_handler? :on_login_failure then
           on_login_failure(self)
         else
           raise Mikrotik::Errors::UnhandledTrap, 'Login failed'

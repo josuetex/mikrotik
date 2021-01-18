@@ -39,7 +39,7 @@ module Mikrotik::Connection
   def unbind
     unless @closing
       if reason 
-        if has_event_handler?(:connection_failure)
+        if has_event_handler?(:on_connection_failure)
           on_connection_failure(reason.new)
         else
           raise reason
